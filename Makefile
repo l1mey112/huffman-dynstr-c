@@ -5,7 +5,7 @@ run: a.out
 	@./a.out
 
 a.out: main.c $(CFILES)
-	@gcc -std=gnu11 $(CFILES)
+	@gcc -ggdb -std=gnu11 $(CFILES)
 
 .PHONY: clean
 clean:

@@ -20,8 +20,8 @@ string string_concat(string a, string b){
 	memcpy(ret.cstr        , a.cstr, a.len);
 	memcpy(ret.cstr + a.len, b.cstr, b.len);
 
-	string_free(&a);
-	string_free(&b);
+//	string_free(&a);
+//	string_free(&b);
 
 	ret.cstr[len] = 0;
 	return ret;

@@ -2,7 +2,7 @@ Return Value
 The total number of elements successfully read are returned as a size_t object, which is an integral data type. If this number differs from the nmemb parameter, then either an error had occurred or the End Of File was reached.
 
 Example
-The following example shows the usage of fread() function.
+The following ex2ample shows the usage of fread() function.
 
  Live Demo
 #include <stdio.h>
@@ -24,7 +24,7 @@ int main () {
 
    /* Read and display data */
    fread(buffer, strlen(c)+1, 1, fp);
-   printf("%s\n", buffer);
+   printf("s\n", buffer);
    fclose(fp);
    
    return(0);

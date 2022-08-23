@@ -3,6 +3,10 @@
         "strings.h": "c",
         "streambuf": "c",
         "atomic": "c",
-        "sstream": "c"
+        "sstream": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "initializer_list": "c"
     }
 }

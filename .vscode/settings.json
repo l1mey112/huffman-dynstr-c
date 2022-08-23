@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "strings.h": "c",
+        "streambuf": "c",
+        "atomic": "c",
+        "sstream": "c"
+    }
+}

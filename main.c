@@ -1,4 +1,4 @@
-#include "strings.h"
+/* #include "strings.h"
 
 int main(){
 	str_builder str = builder_make(4);
@@ -21,4 +21,4 @@ int main(){
 
 	free(ret.cstr);
 	return 0;
-}
+} */

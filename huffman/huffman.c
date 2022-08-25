@@ -1,77 +1,77 @@
-#include "strings.h"
-#include <stdint.h>
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
+#include "huffman.h"
 
-typedef struct HuffmanNode HuffmanNode;
-struct HuffmanNode {
-	size_t weight;
-	uint8_t ch;
-	HuffmanNode *left;
-	HuffmanNode *right;
-};
-// using a union + bool instead will be the exact same size.
-// a huffman node is a character node when left and right is NULL
+typedef struct {
+	uint8_t *data;
+	size_t len;
+} Buffer;
 
-#define TREE_CAP 1024
-HuffmanNode node_buf[TREE_CAP] = {0};
-HuffmanNode *node_odd = NULL;
-int node_count = 0;
+Buffer open_and_read_bytes(const char *filepath){
+	FILE *fp = fopen(filepath, "r");
+	assert(fp != NULL && "failed to open file!");
+	assert(fseek(fp, 0, SEEK_END) == 0);
+	
+	int64_t len = ftell(fp);
+	assert(len > 0);
 
-int cmpfunc(const void* a, const void* b) {
-   return ((HuffmanNode*)b)->weight - ((HuffmanNode*)a)->weight;
+	rewind(fp);
+
+	uint8_t *buffer = malloc(len);
+	size_t elms = fread(buffer, 1, len, fp);
+
+	fclose(fp);
+
+	if (elms == 0 && len > 0) {
+		assert(0);
+	}
+
+	assert(elms != 0 && "cannot read empty file!");
+
+	return (Buffer){
+		.data = buffer,
+		.len = elms
+	};
 }
 
 #define BYTE_RANGE 256
 
-typedef struct {
-	uint8_t ch;
-	size_t weight;
-} CharRank;
+HuffmanNode *new_huffman_node(uint8_t ch, size_t weight){
+	HuffmanNode *n = malloc(sizeof(HuffmanNode));
+	// use preallocated buffer later
 
-static inline HuffmanNode *new_node(uint8_t ch, size_t weight){
-	node_buf[node_count].ch = ch;
-	node_buf[node_count].weight = weight;
-	assert(node_count++ <= TREE_CAP);
+	n->left = n->right = NULL; 
+	n->ch = ch;
+	n->weight = weight;
+
+	return n;
 }
 
-void rank_file(const char *filepath){
-	CharRank file_ranking[BYTE_RANGE] = {0};
-	uint8_t FILEBUFFER[1024];
-	
-	FILE *fp = fopen(filepath, "r");
-	assert (fp);
-	size_t read_amt = fread(FILEBUFFER, 1, 1024, fp);
-	uint8_t *p = FILEBUFFER;
-	assert(read_amt != 0);
-	while (read_amt--){
-		file_ranking[*p].ch = *p;
-		file_ranking[*p].weight++;
-		p++;
-	}
+MinHeap *huffman_rank(Buffer b){
+	size_t chars[256] = {0};
+
+	uint8_t *p = b.data;
+	size_t pos = b.len; 
+	// len can never be zero, is checked when read
+	while (pos--) chars[*p++]++;
+
+	MinHeap *h = new_heap(50);
+
+	// measure weights
 	for (int i = 0; i < BYTE_RANGE; i++)
 	{
-		if (file_ranking[i].weight != 0)
-			new_node(file_ranking[i].ch,file_ranking[i].weight);
+		if (chars[i])
+			heap_push(h,new_huffman_node((uint8_t)i, chars[i]));
 	}
+
+	return h;
 }
 
 int main(){
-	rank_file("huffman/huffman_text.txt");
-	size_t size = 0;
-	for (int i = 0; i < node_count; i++){
-		size += node_buf[i].weight;
-	}
-	printf("------ %zu, from %d nodes ------\n", size, node_count);
+	Buffer file = open_and_read_bytes("huffman/huffman_text.txt");
+	MinHeap *h = huffman_rank(file);
 
-	for (int i = 0; i < node_count; i++){
-		if (node_buf[i].left == NULL && node_buf[i].right == NULL) {
-			printf("HuffmanNode [ %d ]\n",node_buf[i].weight);
-		} else {
-			printf("HuffmanNode { '%c', %d }\n",node_buf[i].ch,node_buf[i].weight);
-		}
-	}
+	HuffmanNode *n;
+	do {
+		n = heap_pop(h);
+		printf("{ '%c' %zu }\n", n->ch, n->weight);
+	} while(h->len);
 }

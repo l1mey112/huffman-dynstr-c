@@ -1,4 +1,4 @@
-override CFILES := $(shell find ./ -type f -name '*.c')
+override CFILES := $(shell find ./ -type f -name '*.c' -not -wholename '*example*')
 
 .PHONY: run
 run: a.out

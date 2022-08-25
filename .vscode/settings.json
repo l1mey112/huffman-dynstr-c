@@ -8,6 +8,14 @@
         "string": "c",
         "string_view": "c",
         "initializer_list": "c",
-        "huffman-old": "c"
+        "huffman-old": "c",
+        "huffman": "c",
+        "bitset": "c",
+        "algorithm": "c",
+        "min-heap.h": "c",
+        "huffman.h": "c",
+        "assert.h": "c",
+        "stdint.h": "c",
+        "string.h": "c"
     }
 }

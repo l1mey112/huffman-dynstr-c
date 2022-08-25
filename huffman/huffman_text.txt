@@ -7,7 +7,7 @@ The following ex2ample shows the usage of fread() function.
  Live Demo
 #include <stdio.h>
 #include <string.h>
-
+pleenis --------------------\n\n\n----------------aaaaaa
 int main () {
    FILE *fp;
    char c[] = "this is tutorialspoint";
@@ -37,4 +37,4 @@ this is tutorialspoint
 
 
 
-\\\\\\\\\\\\\
+\\\\\\\\\\\\\e

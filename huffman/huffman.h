@@ -29,5 +29,6 @@ typedef struct {
 MinHeap *new_heap(size_t cap);
 void heap_push(MinHeap *h, HuffmanNode *a);
 HuffmanNode *heap_pop(MinHeap *h);
+void heapify_all(MinHeap *h);
 
 #endif

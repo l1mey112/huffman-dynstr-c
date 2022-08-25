@@ -33,7 +33,7 @@ static void heapify(MinHeap *h, int i)
 	}
 }
 
-static void heapify_all(MinHeap *h)
+void heapify_all(MinHeap *h)
 {
 	int n = h->len - 1;
 

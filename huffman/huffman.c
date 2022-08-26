@@ -86,18 +86,16 @@ MinHeap *huffman_rank(Buffer b){
 	return h;
 }
 
-size_t size = 0;
-
-void printCodes(HuffmanNode *root, uint8_t *buf, uint8_t top) {
+void print_bits(HuffmanNode *root, uint8_t *buf, uint8_t top) {
  
     if (root->left) {
         buf[top] = 0;
-        printCodes(root->left, buf, top + 1);
+        print_bits(root->left, buf, top + 1);
     }
  
     if (root->right) {
         buf[top] = 1;
-        printCodes(root->right, buf, top + 1);
+        print_bits(root->right, buf, top + 1);
     }
 
     if (!(root->left) && !(root->right)) {
@@ -107,24 +105,44 @@ void printCodes(HuffmanNode *root, uint8_t *buf, uint8_t top) {
         	printf("%d", buf[i]);
 		}
 
-		size += top;
-
 		printf("\n");
 	}
 }
+
+// #define SPACES(count) printf("%*s", count, "")
+
+void SPACES(int level){
+	while(level != 0){
+		printf("-");
+		level--;
+	}
+}
+
+void print_tree(HuffmanNode *root, int level) {
+	if (root->left) {
+		SPACES(level); printf("%d - %d\n",root->weight,level/2);
+        print_tree(root->left, level+2);
+    }
+ 
+    if (root->right) {
+		SPACES(level); printf("%d - %d\n",root->weight,level/2);
+        print_tree(root->right, level+2);
+    }
+}
+
+
 
 int main(){
 	Buffer file = open_and_read_bytes("huffman/huffman_text.txt");
 	MinHeap *h = huffman_rank(file);
 
-	while(h->len > 1) {
+	while(h->len != 1) {
 		heap_push(h, join_huffman_node(heap_pop(h), heap_pop(h)));
 	}
+	HuffmanNode *root = heap_pop(h);
+	//print_tree(root,0);
 
 	uint8_t arr[100] = {0};
 
-	printCodes(h->data[0], arr, 0);
-
-	printf("bytes without compression %zu\n",file.len);
-	printf("bytes after compression %zu\n",size / 8 + (size % 8));
+	print_bits(root, arr, 0);
 }

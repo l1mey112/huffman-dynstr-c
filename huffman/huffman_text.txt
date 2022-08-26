@@ -2,10 +2,10 @@
 #include <math.h>
 
 typedef struct {
-    uint8_t *data;
+    uint8_t data;
     size_t len;
 } Buffer;
                  
-Buffer open_and_read_bytes(const char *filepath){
-    FILE *fp = fopen(filepath, "rb");
+Buffer open_and_read_bytes(const char filepath){
+    FILE fp = fopen(filepath, "rb");
     assert(f

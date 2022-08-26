@@ -109,8 +109,6 @@ void print_bits(HuffmanNode *root, uint8_t *buf, uint8_t top) {
 	}
 }
 
-// #define SPACES(count) printf("%*s", count, "")
-
 void SPACES(int level){
 	while(level != 0){
 		printf("-");
@@ -130,19 +128,96 @@ void print_tree(HuffmanNode *root, int level) {
     }
 }
 
+// 256, 128, 64, 32, 16, 8, 4, 2, 1
+// 9 possible left or right branches, store this in a u16.
 
+typedef struct {
+	uint16_t data;
+	uint8_t len;
+} HuffmanMapEntry;
+
+void walk_huffman(HuffmanMapEntry map[], HuffmanNode *root, uint16_t data, uint8_t len) {
+    if (root->left) {
+        walk_huffman(map, root->left, data, len + 1);
+    }
+ 
+    if (root->right) {
+		data |= 1 << len;
+        walk_huffman(map, root->right, data, len + 1);
+    }
+
+	if (!(root->left) && !(root->right)) {
+		map[root->ch].data = data;
+		map[root->ch].len = len;
+
+		// uint8_t mask = 0;
+		// while (len--)
+		//     putchar(data & 1 << mask++ ? '1' : '0');
+		// putchar('\n');
+	}
+}
+
+void encode_huffman(HuffmanMapEntry map[], Buffer file, BitArray *b){
+	for (size_t i = 0; i < file.len; i++)
+	{
+		HuffmanMapEntry m = map[file.data[i]];
+		uint8_t mask = 0;
+		while (m.len--)
+			bitarray_write(b, m.data & 1 << mask++);
+	}
+}
+
+typedef struct {
+	HuffmanNode *node, *root;
+} HuffmanDecodeContext;
+
+void decode_huffman_cb(Bit b, void *_ctx){
+	HuffmanDecodeContext *node_ctx = _ctx;
+
+	if (node_ctx->node->left == NULL && node_ctx->node->right == NULL) {
+		putchar(node_ctx->node->ch);
+		node_ctx->node = node_ctx->root;
+		
+		decode_huffman_cb(b, _ctx);
+		return;
+	}
+
+	if (!b) {
+		node_ctx->node = node_ctx->node->left;
+	} else {
+		node_ctx->node = node_ctx->node->right;
+	}
+}
+
+void decode_huffman(HuffmanNode *root, BitArray *b){
+	HuffmanDecodeContext ctx = {root, root};
+	bitarray_iter(b, decode_huffman_cb, (void*)&ctx);
+}
 
 int main(){
 	Buffer file = open_and_read_bytes("huffman/huffman_text.txt");
 	MinHeap *h = huffman_rank(file);
 
+	fwrite(file.data, 1, file.len, stdout);
+
+	printf("\n---------------------\n\n");
+
 	while(h->len != 1) {
 		heap_push(h, join_huffman_node(heap_pop(h), heap_pop(h)));
 	}
 	HuffmanNode *root = heap_pop(h);
-	//print_tree(root,0);
+	free(h);
+	
+	BitArray *b = bitarray_new(50);
+	HuffmanMapEntry map[256];
+	walk_huffman(map, root, 0, 0);
 
-	uint8_t arr[100] = {0};
+	encode_huffman(map, file, b);
+	bitarray_print(b);
 
-	print_bits(root, arr, 0);
+	printf("\n%zu bytes saved excluding overhead (uncompressed %zu, compressed %zu)\n",file.len - b->idx, file.len, b->idx);
+
+	printf("\n---------------------\n\n");
+
+	decode_huffman(root, b);
 }

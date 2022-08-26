@@ -31,4 +31,22 @@ void heap_push(MinHeap *h, HuffmanNode *a);
 HuffmanNode *heap_pop(MinHeap *h);
 void heapify_all(MinHeap *h);
 
+typedef struct {
+	size_t bitlen;  // bits written, not bytes
+
+	size_t  idx;
+	size_t  cap;    // in bytes
+
+	uint8_t *data;
+} BitArray;
+
+typedef _Bool Bit;
+
+BitArray *bitarray_new(size_t bytes);
+void bitarray_write(BitArray * b, Bit w);
+
+typedef void (*bitarray_iter_cb)(Bit, void*);
+void bitarray_iter(BitArray * b, bitarray_iter_cb cb, void *user_data);
+void bitarray_print(BitArray * b);
+
 #endif

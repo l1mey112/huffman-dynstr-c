@@ -5,8 +5,10 @@
 #include <stdlib.h>
 
 typedef struct {
-	size_t bitlen; // bits written, not bytes
-	size_t bitcap; // grows by 8 bits
+	size_t bitlen;  // bits written, not bytes
+
+	size_t  idx;
+	size_t  cap;    // in bytes
 
 	uint8_t *data;
 } BitArray;
@@ -21,36 +23,78 @@ BitArray *bitarray_new(size_t bytes){
 	b->data = (void*)b + sizeof(BitArray);
 
 	b->bitlen = 0;
-	b->bitcap = bytes * 8;
+	b->cap = bytes;
+
+	b->idx = 0;
 
 	return b;
 }
 
-// TODO, build up buffer in static variable of a byte,
-//       then flush when needed.
-
 void *bitarray_writeone(BitArray * b, Bit w){
-	size_t bnd = rounddown8(b->bitlen);
-	size_t bit = b->bitlen - bnd;
-	size_t idx = bnd / 8; 
-
-	printf("%d | %zu - %zu - %zu\n", w, bnd, bit, idx);
+	if (w) b->data[b->idx] |= 1 << ( b->bitlen % 8 );
 
 	b->bitlen++;
-	assert(b->bitlen <= b->bitcap);
+
+	printf("wrote data");
+	if (b->bitlen && b->bitlen % 8 == 0) {
+		printf(" - flushed data\n");
+		b->idx++;
+		if (b->idx >= b->cap) {
+			printf("realloc!\n");
+			b->cap *= 2;
+			b = realloc(b, b->cap + sizeof(BitArray));
+			// makes it easier to free the entire thing:
+			// free(bitarray);
+		}
+	} else {
+		printf("\n");
+	}
+}
+
+typedef void (*bitarray_iter_cb)(Bit);
+
+void *bitarray_iter(BitArray * b, bitarray_iter_cb cb){
+	size_t idx = 0;
+	uint8_t mask = 1;
+	for (size_t bit = 0; bit <= b->bitlen; bit++)
+	{
+		if (bit && bit % 8 == 0) {
+			idx++;
+			mask = 1;
+		} else {
+			cb(b->data[idx] & mask);
+			mask <<= 1;
+		}
+	}
+}
+
+void bitarray_print_cb(Bit a){
+	if (a) {
+		putchar('1');
+	} else {
+		putchar('0');
+	}
+}
+
+void *bitarray_print(BitArray * b){
+	bitarray_iter(b, bitarray_print_cb);
+	putchar('\n');
 }
 
 int main(){
-	BitArray *b = bitarray_new(100);
+	BitArray *b = bitarray_new(1);
 
-	bitarray_writeone(b, 0);
-	bitarray_writeone(b, 1);
-	bitarray_writeone(b, 0);
 	bitarray_writeone(b, 1);
 	bitarray_writeone(b, 1);
 	bitarray_writeone(b, 0);
+	bitarray_writeone(b, 1);
+	bitarray_writeone(b, 1);
+	bitarray_writeone(b, 0);
 	bitarray_writeone(b, 0);
 	bitarray_writeone(b, 1);
 	bitarray_writeone(b, 0);
+	bitarray_writeone(b, 0);
 	bitarray_writeone(b, 1);
+
+	bitarray_print(b);
 }

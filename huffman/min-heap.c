@@ -2,10 +2,15 @@
 
 MinHeap *new_heap(size_t cap)
 {
-	MinHeap *h = malloc(sizeof(MinHeap));
+	MinHeap *h = malloc(sizeof(MinHeap) + sizeof(HuffmanNode*) * cap);
+	h->data = (void*)h + sizeof(MinHeap);
+	
+	// free(minheap);
+	// instead of...
+	// free(minheap->data); free(minheap); 
+
 	h->len = 0;
 	h->cap = cap;
-	h->data = malloc(sizeof(HuffmanNode*) * cap);
 
 	return h;
 }
@@ -48,7 +53,7 @@ static inline void heap_ensure_cap(MinHeap *h, size_t cap){
 	if (h->len + cap > h->cap){
 		printf("[] heap grew! - cap was %zu, is now %zu\n",h->cap, h->cap * (size_t)2);
 		h->cap *= 2;
-		h->data = realloc(h->data, h->cap * sizeof(HuffmanNode*));
+		h = realloc(h, h->cap * sizeof(HuffmanNode*) + sizeof(MinHeap));
 	}
 }
 

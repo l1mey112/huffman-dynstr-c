@@ -167,40 +167,40 @@ void encode_huffman(HuffmanMapEntry map[], Buffer file, BitArray *b){
 	}
 }
 
-typedef struct {
-	HuffmanNode *node, *root;
-} HuffmanDecodeContext;
-
-void decode_huffman_cb(Bit b, void *_ctx){
-	HuffmanDecodeContext *node_ctx = _ctx;
-
-	if (node_ctx->node->left == NULL && node_ctx->node->right == NULL) {
-		putchar(node_ctx->node->ch);
-		node_ctx->node = node_ctx->root;
-		
-		decode_huffman_cb(b, _ctx);
-		return;
-	}
-
-	if (!b) {
-		node_ctx->node = node_ctx->node->left;
-	} else {
-		node_ctx->node = node_ctx->node->right;
-	}
-}
-
 void decode_huffman(HuffmanNode *root, BitArray *b){
-	HuffmanDecodeContext ctx = {root, root};
-	bitarray_iter(b, decode_huffman_cb, (void*)&ctx);
+	HuffmanNode *node = root;
+
+	size_t idx = 0;
+	uint8_t mask = 1;
+	for (size_t bit = 0; bit <= b->bitlen; bit++)
+	{
+		if (bit && bit % 8 == 0) {
+			idx++;
+			mask = 1;
+		} else {
+			if (!(b->data[idx] & mask)){
+				node = node->left;
+			} else {
+				node = node->right;
+			}
+
+			if (!node->left && !node->right) {
+				putchar(node->ch);
+				node = root;
+			}
+			mask <<= 1;
+		}
+	}
+	putchar('\n');
 }
 
 int main(){
 	Buffer file = open_and_read_bytes("huffman/huffman_text.txt");
 	MinHeap *h = huffman_rank(file);
 
-	fwrite(file.data, 1, file.len, stdout);
+	//fwrite(file.data, 1, file.len, stdout);
 
-	printf("\n---------------------\n\n");
+	//printf("\n---------------------\n\n");
 
 	while(h->len != 1) {
 		heap_push(h, join_huffman_node(heap_pop(h), heap_pop(h)));
@@ -215,9 +215,9 @@ int main(){
 	encode_huffman(map, file, b);
 	bitarray_print(b);
 
-	printf("\n%zu bytes saved excluding overhead (uncompressed %zu, compressed %zu)\n",file.len - b->idx, file.len, b->idx);
+	//printf("\n%zu bytes saved excluding overhead (uncompressed %zu, compressed %zu)\n",file.len - b->idx, file.len, b->idx);
 
-	printf("\n---------------------\n\n");
+	//printf("\n---------------------\n\n");
 
 	decode_huffman(root, b);
 }

@@ -17,6 +17,7 @@ Buffer open_and_read_bytes(const char *filepath){
 	rewind(fp);
 
 	uint8_t *buffer = malloc(len);
+	assert(buffer);
 	size_t elms = fread(buffer, 1, len, fp);
 
 	fclose(fp);
@@ -33,27 +34,58 @@ Buffer open_and_read_bytes(const char *filepath){
 	};
 }
 
+HuffmanNode buffer[1024];
+int amt = 4;
+
+HuffmanNode *global_buffer_alloc(){
+	int p = amt;
+	
+	amt++;
+
+	assert( amt < 1024 );
+
+	return &buffer[p];
+}
+
+/* RelativeBuffer global_buffer; */
+
+/* void setup_global_buffer(size_t cap){
+	/* global_buffer.cap = cap;
+	global_buffer.len = 0;
+
+	global_buffer.data = malloc(sizeof(HuffmanNode) * cap);
+} 
+
+/* #define Mrel(rptr) (HuffmanNode*)((void*)global_buffer.data + rptr) 
+#define Drel(ptr)  (HuffmanNode*)(ptr - (void*)global_buffer.data)
+ */
+/* HuffmanNode *global_buffer_alloc(){
+	uint64_t place = global_buffer.len;
+	global_buffer.len++;
+
+	if (global_buffer.len > global_buffer.cap){
+		printf("realloc\n");
+		global_buffer.cap *= 2;
+		global_buffer.data = realloc(global_buffer.data, sizeof(HuffmanNode) * global_buffer.cap);
+	}
+
+	return global_buffer.data + place;
+}
+ */
 HuffmanNode *new_huffman_node(uint8_t ch, size_t weight){
-	HuffmanNode *n = malloc(sizeof(HuffmanNode));
-	// use preallocated buffer later
+	HuffmanNode *n = global_buffer_alloc();
 
 	n->left = NULL; 
 	n->right = NULL;
 	n->ch = ch;
 	n->weight = weight;
 
-	return n;
-}
-
-HuffmanNode *dupe_huffman_node(HuffmanNode *a){
-	HuffmanNode *n = malloc(sizeof(HuffmanNode));
-	memcpy(n, a, sizeof(HuffmanNode));
-
+	//printf("%zu\n",(void*)n - (void*)global_buffer.data);
 	return n;
 }
 
 HuffmanNode *join_huffman_node(HuffmanNode *a, HuffmanNode *b){
-	HuffmanNode *n = malloc(sizeof(HuffmanNode));
+	HuffmanNode *n = global_buffer_alloc();
 	
 	n->ch = 0;
 	n->weight = a->weight + b->weight;
@@ -109,7 +141,7 @@ void print_bits(HuffmanNode *root, uint8_t *buf, uint8_t top) {
 	}
 }
 
-void SPACES(int level){
+/* void SPACES(int level){
 	while(level != 0){
 		printf("-");
 		level--;
@@ -126,7 +158,7 @@ void print_tree(HuffmanNode *root, int level) {
 		SPACES(level); printf("%d - %d\n",root->weight,level/2);
         print_tree(root->right, level+2);
     }
-}
+} */
 
 // 256, 128, 64, 32, 16, 8, 4, 2, 1
 // 9 possible left or right branches, store this in a u16.
@@ -178,7 +210,7 @@ void decode_huffman(HuffmanNode *root, BitArray *b){
 			idx++;
 			mask = 1;
 		}
-		
+
 		if (!(b->data[idx] & mask)){
 			node = node->left;
 		} else {
@@ -189,12 +221,19 @@ void decode_huffman(HuffmanNode *root, BitArray *b){
 			putchar(node->ch);
 			node = root;
 		}
+
 		mask <<= 1;
 	}
 	putchar('\n');
 }
 
+/* file.txt
+   file.txt.hcoding
+   file.txt.hkey    */
+
 int main(){
+	/* setup_global_buffer(100); */
+
 	Buffer file = open_and_read_bytes("huffman/huffman_text.txt");
 	MinHeap h = huffman_rank(file);
 
@@ -206,6 +245,7 @@ int main(){
 		heap_push(&h, join_huffman_node(heap_pop(&h), heap_pop(&h)));
 	}
 	HuffmanNode *root = heap_pop(&h);
+	free(h.data);
 	
 	BitArray b = bitarray_new(50);
 	HuffmanMapEntry map[256];
@@ -219,4 +259,6 @@ int main(){
 	printf("\n---------------------\n\n");
 
 	decode_huffman(root, &b);
+	free(file.data);
+	free(b.data);
 }

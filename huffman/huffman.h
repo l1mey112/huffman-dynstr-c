@@ -19,6 +19,14 @@ struct HuffmanNode {
 // using a union + bool instead will be the exact same size.
 // a huffman node is a character/leaf node when left and right is NULL
 
+/* typedef struct {
+	size_t len;
+	size_t cap;
+
+	HuffmanNode *data;
+} RelativeBuffer; */
+// for serialisied data
+
 typedef struct {
 	size_t len;
 	size_t cap;

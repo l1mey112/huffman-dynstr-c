@@ -49,7 +49,7 @@ static inline void heap_ensure_cap(MinHeap *h, size_t cap){
 	if (h->len + cap > h->cap){
 		printf("[] heap grew! - cap was %zu, is now %zu\n",h->cap, h->cap * (size_t)2);
 		h->cap *= 2;
-		h->data = realloc(h->data, h->cap * sizeof(HuffmanNode**));
+		h->data = realloc(h->data, h->cap * sizeof(HuffmanNode*));
 	}
 }
 

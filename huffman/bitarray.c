@@ -1,16 +1,16 @@
 #include "huffman.h"
 
-BitArray *bitarray_new(size_t bytes){
-	BitArray *b = malloc(sizeof(BitArray) + bytes);
-	b->data = (void*)b + sizeof(BitArray);
-
-	b->bitlen = b->idx = 0;
-	b->cap = bytes;
+BitArray bitarray_new(size_t bytes){
+	BitArray b;
+	b.data = malloc(bytes);
+	b.bitlen = 0;
+	b.idx = 0;
+	b.cap = bytes;
 
 	return b;
 }
 
-void bitarray_write(BitArray * b, Bit w){
+void bitarray_write(BitArray *b, Bit w){
 	if (w) b->data[b->idx] |= 1 << ( b->bitlen % 8 );
 
 	b->bitlen++;
@@ -19,9 +19,7 @@ void bitarray_write(BitArray * b, Bit w){
 		b->idx++;
 		if (b->idx >= b->cap) {
 			b->cap *= 2;
-			b = realloc(b, b->cap + sizeof(BitArray));
-			// makes it easier to free the entire thing:
-			// free(bitarray);
+			b->data = realloc(b->data, b->cap /* * sizeof(uint8_t) */);
 		}
 	}
 }

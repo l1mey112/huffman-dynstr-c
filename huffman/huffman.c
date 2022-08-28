@@ -65,7 +65,7 @@ HuffmanNode *join_huffman_node(HuffmanNode *a, HuffmanNode *b){
 
 #define BYTE_RANGE 256
 
-MinHeap *huffman_rank(Buffer b){
+MinHeap huffman_rank(Buffer b){
 	size_t chars[BYTE_RANGE] = {0};
 
 	uint8_t *p = b.data;
@@ -73,13 +73,13 @@ MinHeap *huffman_rank(Buffer b){
 	// len can never be zero, is checked when read
 	while (pos--) chars[*p++]++;
 
-	MinHeap *h = new_heap(50);
+	MinHeap h = new_heap(50);
 
 	// measure weights
 	for (int i = 0; i < BYTE_RANGE; i++)
 	{
 		if (chars[i]){
-			heap_push(h, new_huffman_node(i, chars[i]));
+			heap_push(&h, new_huffman_node(i, chars[i]));
 		}
 	}
 
@@ -177,47 +177,46 @@ void decode_huffman(HuffmanNode *root, BitArray *b){
 		if (bit && bit % 8 == 0) {
 			idx++;
 			mask = 1;
-		} else {
-			if (!(b->data[idx] & mask)){
-				node = node->left;
-			} else {
-				node = node->right;
-			}
-
-			if (!node->left && !node->right) {
-				putchar(node->ch);
-				node = root;
-			}
-			mask <<= 1;
 		}
+		
+		if (!(b->data[idx] & mask)){
+			node = node->left;
+		} else {
+			node = node->right;
+		}
+
+		if (!node->left && !node->right) {
+			putchar(node->ch);
+			node = root;
+		}
+		mask <<= 1;
 	}
 	putchar('\n');
 }
 
 int main(){
 	Buffer file = open_and_read_bytes("huffman/huffman_text.txt");
-	MinHeap *h = huffman_rank(file);
+	MinHeap h = huffman_rank(file);
 
-	//fwrite(file.data, 1, file.len, stdout);
+	fwrite(file.data, 1, file.len, stdout);
 
-	//printf("\n---------------------\n\n");
+	printf("\n---------------------\n\n");
 
-	while(h->len != 1) {
-		heap_push(h, join_huffman_node(heap_pop(h), heap_pop(h)));
+	while(h.len != 1) {
+		heap_push(&h, join_huffman_node(heap_pop(&h), heap_pop(&h)));
 	}
-	HuffmanNode *root = heap_pop(h);
-	free(h);
+	HuffmanNode *root = heap_pop(&h);
 	
-	BitArray *b = bitarray_new(50);
+	BitArray b = bitarray_new(50);
 	HuffmanMapEntry map[256];
 	walk_huffman(map, root, 0, 0);
 
-	encode_huffman(map, file, b);
-	bitarray_print(b);
+	encode_huffman(map, file, &b);
+	bitarray_print(&b);
 
 	//printf("\n%zu bytes saved excluding overhead (uncompressed %zu, compressed %zu)\n",file.len - b->idx, file.len, b->idx);
 
-	//printf("\n---------------------\n\n");
+	printf("\n---------------------\n\n");
 
-	decode_huffman(root, b);
+	decode_huffman(root, &b);
 }

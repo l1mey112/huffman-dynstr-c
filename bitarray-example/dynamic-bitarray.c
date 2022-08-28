@@ -42,9 +42,13 @@ void *bitarray_writeone(BitArray * b, Bit w){
 		if (b->idx >= b->cap) {
 			printf("realloc!\n");
 			b->cap *= 2;
-			b = realloc(b, b->cap + sizeof(BitArray));
+			abort();
+			// TODO: THIS REALLOC THING IS ABSOLUTELY WRONG
+			//       YOU DONT ACTUALLY RETURN THE PTR, HOW
+			//       CAN FUTURE CALLS GET THE CHANGED PTR?
+			/* b = realloc(b, b->cap + sizeof(BitArray));
 			// makes it easier to free the entire thing:
-			// free(bitarray);
+			// free(bitarray); */
 		}
 	} else {
 		printf("\n");

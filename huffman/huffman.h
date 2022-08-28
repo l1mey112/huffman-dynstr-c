@@ -26,7 +26,7 @@ typedef struct {
 	HuffmanNode **data;
 } MinHeap;
 
-MinHeap *new_heap(size_t cap);
+MinHeap new_heap(size_t cap);
 void heap_push(MinHeap *h, HuffmanNode *a);
 HuffmanNode *heap_pop(MinHeap *h);
 void heapify_all(MinHeap *h);
@@ -42,7 +42,7 @@ typedef struct {
 
 typedef _Bool Bit;
 
-BitArray *bitarray_new(size_t bytes);
+BitArray bitarray_new(size_t bytes);
 void bitarray_write(BitArray * b, Bit w);
 
 typedef void (*bitarray_iter_cb)(Bit, void*);

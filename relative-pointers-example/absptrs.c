@@ -20,7 +20,7 @@ Node *new_node(uint16_t data){
 }
 
 void iter_node(Node *root){
-	do printf("%p -> %u\n",root, root->data);
+	do    printf("%p -> %u\n",root, root->data);
 	while (root = root->next);
 }
 

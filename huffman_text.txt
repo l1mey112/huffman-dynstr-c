@@ -1,0 +1,5 @@
+HuffmanNode *global_buffer_alloc(){
+	assert( amt < 1024 );
+
+	return &buffer[amt++];
+}

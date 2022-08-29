@@ -1,9 +1,0 @@
-In my Restuarnt project I have 2 arrays of structs. 
-One to represent the menu, second to represent the tables:
-
-#define MAX_CATEGORY_NUM 10
-#define MAX_ITEMS_PER_CATEGORY 20
-#define MAX_NAME_LEN 20
-#define MAX_FREE_TEXT_LEN 50
-#define MAX_ITEMS_FOR_TABLE 100
-#define MAX_TABLES 20

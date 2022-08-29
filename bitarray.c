@@ -3,6 +3,8 @@
 BitArray bitarray_new(size_t bytes){
 	BitArray b;
 	b.data = malloc(bytes);
+	assert(b.data);
+	b.data[0] = 0;
 	b.bitlen = 0;
 	b.idx = 0;
 	b.cap = bytes;
@@ -21,6 +23,7 @@ void bitarray_write(BitArray *b, Bit w){
 			b->cap *= 2;
 			b->data = realloc(b->data, b->cap /* * sizeof(uint8_t) */);
 		}
+		b->data[b->idx] = 0; // <---
 	}
 }
 

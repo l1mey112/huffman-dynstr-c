@@ -57,4 +57,21 @@ typedef void (*bitarray_iter_cb)(Bit, void*);
 void bitarray_iter(BitArray * b, bitarray_iter_cb cb, void *user_data);
 void bitarray_print(BitArray * b);
 
+typedef struct {
+	uint8_t *data;
+	size_t len;
+} Buffer;
+
+typedef struct {
+	uint16_t data;
+	uint8_t len;
+} HuffmanMapEntry;
+
+Buffer open_and_read_bytes(const char *filepath);
+HuffmanNode *huffman_rank(Buffer b);
+void walk_huffman(HuffmanMapEntry map[], HuffmanNode *root, uint16_t data, uint8_t len);
+
+void encode_huffman(HuffmanMapEntry map[], Buffer file, BitArray *b);
+void decode_huffman(HuffmanNode *root, BitArray *b);
+
 #endif

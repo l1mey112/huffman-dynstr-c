@@ -21,6 +21,7 @@ typedef _Bool Bit;
 BitArray *bitarray_new(size_t bytes){
 	BitArray *b = malloc(sizeof(BitArray) + bytes);
 	b->data = (void*)b + sizeof(BitArray);
+	b->data[0] = 0;
 
 	b->bitlen = 0;
 	b->cap = bytes;
@@ -39,6 +40,7 @@ void *bitarray_writeone(BitArray * b, Bit w){
 	if (b->bitlen && b->bitlen % 8 == 0) {
 		printf(" - flushed data\n");
 		b->idx++;
+		b->data[b->idx] = 0;
 		if (b->idx >= b->cap) {
 			printf("realloc!\n");
 			b->cap *= 2;

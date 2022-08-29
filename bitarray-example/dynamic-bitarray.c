@@ -36,24 +36,13 @@ void *bitarray_writeone(BitArray * b, Bit w){
 
 	b->bitlen++;
 
-	printf("wrote data");
 	if (b->bitlen && b->bitlen % 8 == 0) {
-		printf(" - flushed data\n");
 		b->idx++;
-		b->data[b->idx] = 0;
 		if (b->idx >= b->cap) {
-			printf("realloc!\n");
 			b->cap *= 2;
-			abort();
-			// TODO: THIS REALLOC THING IS ABSOLUTELY WRONG
-			//       YOU DONT ACTUALLY RETURN THE PTR, HOW
-			//       CAN FUTURE CALLS GET THE CHANGED PTR?
-			/* b = realloc(b, b->cap + sizeof(BitArray));
-			// makes it easier to free the entire thing:
-			// free(bitarray); */
+			b->data = realloc(b->data, b->cap /* * sizeof(uint8_t) */);
 		}
-	} else {
-		printf("\n");
+		b->data[b->idx] = 0;
 	}
 }
 

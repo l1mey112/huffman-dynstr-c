@@ -6,7 +6,7 @@ run: a.out
 	@./a.out
  
 a.out: main.c $(CFILES) $(HFILES) Makefile
-	@gcc -fanalyzer -ggdb -std=gnu11 $(CFILES)
+	@gcc -fanalyzer -Og -ggdb -std=gnu11 $(CFILES)
 #	-Wall -fsanitize=address,pointer-compare,leak,undefined,pointer-overflow
 
 .PHONY: clean

@@ -29,7 +29,12 @@ Buffer open_and_read_bytes(const char *filepath){
 }
 
 HuffmanNode buffer[1024];
-unsigned int amt = 0;
+unsigned int amt = 1;
+/* you see, this is the thing with relative pointers,
+ * how do you represent a null value? You can't use
+ * zero because that may relate to the start of a 
+ * buffer. I use an amazing hack called + 1.
+*/
 
 HuffmanNode *global_buffer_alloc(){
 	assert( amt < 1024 );
@@ -145,7 +150,7 @@ void encode_huffman(HuffmanMapEntry map[], Buffer file, BitArray *b){
 	}
 }
 
-void decode_huffman(HuffmanNode *root, BitArray *b){
+void decode_huffman_print(HuffmanNode *root, BitArray *b){
 	HuffmanNode *node = root;
 
 	size_t idx = 0;
@@ -171,4 +176,31 @@ void decode_huffman(HuffmanNode *root, BitArray *b){
 		mask <<= 1;
 	}
 	putchar('\n');
+}
+
+void decode_huffman(HuffmanNode *root, BitArray *b, FILE *out){
+	HuffmanNode *node = root;
+
+	size_t idx = 0;
+	uint8_t mask = 1;
+	for (size_t bit = 0; bit <= b->bitlen; bit++)
+	{
+		if (bit && bit % 8 == 0) {
+			idx++;
+			mask = 1;
+		}
+
+		if (!(b->data[idx] & mask)){
+			node = node->left;
+		} else {
+			node = node->right;
+		}
+
+		if (!node->left && !node->right) {
+			assert(fputc(node->ch, out) == node->ch);
+			node = root;
+		}
+
+		mask <<= 1;
+	}
 }

@@ -72,6 +72,7 @@ HuffmanNode *huffman_rank(Buffer b);
 void walk_huffman(HuffmanMapEntry map[], HuffmanNode *root, uint16_t data, uint8_t len);
 
 void encode_huffman(HuffmanMapEntry map[], Buffer file, BitArray *b);
-void decode_huffman(HuffmanNode *root, BitArray *b);
+void decode_huffman(HuffmanNode *root, BitArray *b, FILE *out);
+void decode_huffman_print(HuffmanNode *root, BitArray *b);
 
 #endif

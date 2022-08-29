@@ -1,5 +1,15 @@
-HuffmanNode *global_buffer_alloc(){
-	assert( amt < 1024 );
-
-	return &buffer[amt++];
-}
+ambulance
+Luigiana — Today at 7:04 PM
+Luigi W man
+Luigi's a w man he goes into W door
+plue — Today at 7:06 PM
+literally the worst off by one error imaginable
+Image
+what the fuck caused this
+PotatoCat85 — Today at 7:06 PM
+math
+plue — Today at 7:06 PM
+my computer got hit with a gamma ray burst
+PotatoCat85 — Today at 7:06 PM
+lol
+true
